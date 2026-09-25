@@ -7,57 +7,65 @@ const AdminOrders = () => {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
 
+
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
-        const res = await fetch(`${API_URL}/api/orders`, {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        })
-
-        const data = await res.json()
-
-        setOrders(Array.isArray(data) ? data : [])
-      } catch (error) {
-        console.error('Error fetching orders:', error)
-      } finally {
-        setLoading(false)
-      }
+  const fetchOrders = async () => {
+    if (!user) {
+      setLoading(false)
+      return
     }
 
-    fetchOrders()
-  }, [user])
+    if (!user.token) {
+      console.error('User token is missing')
+      setLoading(false)
+      return
+    }
 
-  // const updateStatus = async (id, status) => {
-  //   try {
-  //     const res = await fetch(`http://localhost:5000/api/orders/${id}/status`, {
-  //       method: 'PUT',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         Authorization: `Bearer ${user.token}`,
-  //       },
-  //       body: JSON.stringify({ status }),
-  //     })
+    try {
+      const API_URL =
+        import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
-  //     if (res.ok) {
-  //       setOrders(
-  //         orders.map((order) =>
-  //           order._id === id
-  //             ? { ...order, status }
-  //             : order
-  //         )
-  //       )
-  //     }
-  //   } catch (error) {
-  //     console.error('Error updating order status:', error)
-  //   }
-  // }
+      const res = await fetch(`${API_URL}/api/orders`, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      })
 
-  const updateStatus = async (id, status) => {
+      const data = await res.json()
+
+      console.log('Orders response:', res.status, data)
+
+      if (!res.ok) {
+        console.error('Fetching orders failed:', data)
+        setOrders([])
+        return
+      }
+
+      setOrders(Array.isArray(data) ? data : [])
+    } catch (error) {
+      console.error('Error fetching orders:', error)
+      setOrders([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  fetchOrders()
+}, [user])
+
+
+
+
+const updateStatus = async (id, status) => {
+  if (!user?.token) {
+    console.error('User is not authenticated')
+    return
+  }
+
   try {
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+    const API_URL =
+      import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
     const res = await fetch(
       `${API_URL}/api/orders/${id}/status`,
       {
@@ -82,7 +90,7 @@ const AdminOrders = () => {
     setOrders((prevOrders) =>
       prevOrders.map((order) =>
         order._id === id
-          ? { ...order, status: status }
+          ? { ...order, status }
           : order
       )
     )

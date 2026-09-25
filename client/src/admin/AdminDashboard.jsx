@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { AuthContext } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import ShopNestLogo from '../assets/ShopNestLogo.png'
+import ShopNestLogo from '../../assets/ShopNestLogo.png'
 
 const AdminDashboard = () => {
   const { user } = useContext(AuthContext)
