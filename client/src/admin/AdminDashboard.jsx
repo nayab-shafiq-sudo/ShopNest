@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { AuthContext } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import ShopNestLogo from '../assets/ShopNestLogo.png'
 
 const AdminDashboard = () => {
   const { user } = useContext(AuthContext)
@@ -61,7 +62,7 @@ const AdminDashboard = () => {
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-orange-400/10 shadow-lg shadow-orange-500/10">
               <img
-                src="/ShopNestLogo.png"
+                src={ShopNestLogo}
                 alt="ShopNest Logo"
                 className="h-9 w-9 object-cover"
               />
