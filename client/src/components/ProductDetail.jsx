@@ -16,7 +16,8 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true)
-        const res = await fetch(`http://localhost:5000/api/products/${id}`)
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+        const res = await fetch(`${API_URL}/api/products/${id}`)
 
         if (!res.ok) {
           throw new Error('Product not found')

@@ -11,7 +11,8 @@ const AdminProducts = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/products')
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+        const res = await fetch(`${API_URL}/api/products`)
         const data = await res.json()
 
         setProducts(Array.isArray(data.allProducts) ? data.allProducts : [])
@@ -32,7 +33,8 @@ const AdminProducts = () => {
       )
     ) {
       try {
-        const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+        const res = await fetch(`${API_URL}/api/products/${id}`, {
           method: 'DELETE',
           headers: {
             Authorization: `Bearer ${user.token}`,

@@ -20,7 +20,8 @@ const EditProduct = () => {
 
   useEffect(() => {
     const fetchProduct = async () => {
-      const res = await fetch(`http://localhost:5000/api/products/${id}`)
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+      const res = await fetch(`${API_URL}/api/products/${id}`)
       const data = await res.json()
 
       setFormData({
@@ -49,7 +50,8 @@ const EditProduct = () => {
 
     if (image) data.append('image', image)
 
-    const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+    const res = await fetch(`${API_URL}/api/products/${id}`, {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${user.token}`,

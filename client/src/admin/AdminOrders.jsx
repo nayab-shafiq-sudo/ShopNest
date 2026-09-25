@@ -10,7 +10,8 @@ const AdminOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/orders', {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+        const res = await fetch(`${API_URL}/api/orders`, {
           headers: {
             Authorization: `Bearer ${user.token}`,
           },
@@ -56,8 +57,9 @@ const AdminOrders = () => {
 
   const updateStatus = async (id, status) => {
   try {
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
     const res = await fetch(
-      `http://localhost:5000/api/orders/${id}/status`,
+      `${API_URL}/api/orders/${id}/status`,
       {
         method: 'PUT',
         headers: {

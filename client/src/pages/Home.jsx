@@ -9,7 +9,8 @@ const Home = () => {
   useEffect(()=>{
     const fetchProduct = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/products')
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+        const res = await fetch(`${API_URL}/api/products`)
         const data = await res.json()
         setProducts(data.allProducts.slice(0,12))
       } catch (error) {

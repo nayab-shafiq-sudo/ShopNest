@@ -51,7 +51,8 @@ const Checkout = () => {
 
   const handlePayment = async () => {
   try {
-    const orderRes = await fetch('http://localhost:5000/api/payment/order', {
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+    const orderRes = await fetch(`${API_URL}/api/payment/order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount: totalPrice }),
@@ -78,7 +79,7 @@ const Checkout = () => {
 
       handler: async function (response) {
         try {
-          const verifyRes = await fetch('http://localhost:5000/api/payment/verify', {
+          const verifyRes = await fetch(`${API_URL}/api/payment/verify`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(response),
@@ -89,7 +90,7 @@ const Checkout = () => {
             return alert('Payment verification failed')
           }
 
-          const saveOrderRes = await fetch('http://localhost:5000/api/orders', {
+          const saveOrderRes = await fetch(`${API_URL}/api/orders`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -134,7 +135,7 @@ const Checkout = () => {
 
 const bypassPayment = async () => {
   try {
-    const saveOrderRes = await fetch('http://localhost:5000/api/orders', {
+    const saveOrderRes = await fetch(`${API_URL}/api/orders`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
