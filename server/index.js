@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const path = require('path')
+const fs = require('fs')
 const dotenv = require('dotenv')
 dotenv.config()
 const connectDB = require('./config/db')
@@ -22,13 +23,21 @@ app.use('/api/orders', require('./routes/orders.routes'))
 app.use('/api/payment', require('./routes/payment.routes'))
 app.use('/api/analytics', require('./routes/analytics.routes'))
 
-// Serve frontend in production
+// Serve frontend only if the built client exists.
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/dist')))
+  const clientDistPath = path.join(__dirname, '../client/dist')
+  const clientIndexPath = path.join(clientDistPath, 'index.html')
 
-  app.use((req, res) => {
-    res.sendFile(path.resolve(__dirname, '../client/dist/index.html'))
-  })
+  if (fs.existsSync(clientIndexPath)) {
+    app.use(express.static(clientDistPath))
+    app.get('*', (req, res) => {
+      res.sendFile(clientIndexPath)
+    })
+  } else {
+    app.get('/', (req, res) => {
+      res.json({ message: 'ShopNest API is running. Frontend is served from a separate service.' })
+    })
+  }
 } else {
   app.get('/', (req, res) => {
     res.send('ShopNest API is running in Development mode...')
