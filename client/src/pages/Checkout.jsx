@@ -4,6 +4,8 @@ import { useSelector, useDispatch } from 'react-redux'
 import { AuthContext } from '../context/AuthContext'
 import { clearCart } from '../redux/CartSlice'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
 const Checkout = () => {
   const { user } = useContext(AuthContext)
 
@@ -51,7 +53,6 @@ const Checkout = () => {
 
   const handlePayment = async () => {
   try {
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
     const orderRes = await fetch(`${API_URL}/api/payment/order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -135,7 +136,7 @@ const Checkout = () => {
 
 const bypassPayment = async () => {
   try {
-    const saveOrderRes = await fetch(`${API_URL}/api/orders`, {
+    const saveOrderRes = await fetch(`http://localhost:5000/api/orders`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
