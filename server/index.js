@@ -9,10 +9,7 @@ connectDB()
 
 const app = express()
 
-app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173', process.env.FRONTEND_URL].filter(Boolean),
-  credentials: true
-}))
+app.use(cors())
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -23,14 +20,14 @@ app.use('/api/orders', require('./routes/orders.routes'))
 app.use('/api/payment', require('./routes/payment.routes'))
 app.use('/api/analytics', require('./routes/analytics.routes'))
 
-// Serve frontend only if the built client exists.
+
 if (process.env.NODE_ENV === 'production') {
   const clientDistPath = path.join(__dirname, '../client/dist')
   const clientIndexPath = path.join(clientDistPath, 'index.html')
 
   if (fs.existsSync(clientIndexPath)) {
     app.use(express.static(clientDistPath))
-    app.get('*', (req, res) => {
+    app.get(/(.*)/, (req, res) => {
       res.sendFile(clientIndexPath)
     })
   } else {
