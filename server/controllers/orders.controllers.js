@@ -14,13 +14,25 @@ const formatOrderItems = (items = []) => {
 
 const createOrder = async (req, res) => {
     try {
-        const { items, totalAmount, address, paymentId } = req.body 
-        if (!items || !totalAmount || !address || !paymentId){
-            return res.status(400).json({message:'invalid order data'})
-        } else {
-            const order = await orderModel.create({ user: req.user._id, items, totalAmount, address, paymentId})
-            const formattedAddress = `${address.fullName}\n${address.street}, ${address.city}\n${address.postalCode}, ${address.country}`
-            const message = `Hello ${req.user.name},
+        const { items, totalAmount, address, paymentId } = req.body
+
+        if (!items || !totalAmount || !address || !paymentId) {
+            return res.status(400).json({
+                message: 'invalid order data'
+            })
+        }
+
+        const order = await orderModel.create({
+            user: req.user._id,
+            items,
+            totalAmount,
+            address,
+            paymentId
+        })
+
+        const formattedAddress = `${address.fullName}\n${address.street}, ${address.city}\n${address.postalCode}, ${address.country}`
+
+        const message = `Hello ${req.user.name},
 
 Thank you for shopping with ShopNest!
 
@@ -41,15 +53,25 @@ Thank you for choosing ShopNest!
 Best Regards,
 ShopNest Team`
 
-            await sendEmail(req.user.email, 'Order Created - ShopNest', message)
-            res.status(201).json({message: 'order created succesfully', order})
-        }
+        // Email should not block order creation
+        sendEmail(req.user.email, 'Order Created - ShopNest', message)
+            .catch((error) => {
+                console.error('Order email failed:', error)
+            })
+
+        return res.status(201).json({
+            message: 'order created succesfully',
+            order
+        })
+
     } catch (error) {
         console.error('Error creating order:', error)
-        res.status(500).json({message:'Error creating order'})
+
+        return res.status(500).json({
+            message: 'Error creating order'
+        })
     }
 }
-
 const getOrderById = async (req, res) => {
     try {
         const userOrders = await orderModel.find({user: req.user._id}).populate('items.productId', 'name price')

@@ -7,17 +7,22 @@ const sendEmail = async (to, subject, text) => {
             auth: {
                 user: process.env.USER_EMAIL,
                 pass: process.env.USER_PASS
-            }
+            },
+            connectionTimeout: 5000,
+            greetingTimeout: 5000,
+            socketTimeout: 5000
         })
-        const mailOptions = {
+
+        await transporter.sendMail({
             from: process.env.USER_EMAIL,
             to,
             subject,
             text
-        }
-        await transporter.sendMail(mailOptions)
+        })
+
+        console.log('Email sent successfully')
     } catch (error) {
-        console.error('Error sending email', error)
+        console.error('Error sending email:', error.message)
     }
 }
 
