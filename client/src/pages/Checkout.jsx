@@ -51,90 +51,7 @@ const Checkout = () => {
 
 
 
-  const handlePayment = async () => {
-  try {
-    const orderRes = await fetch(`${API_URL}/api/payment/order`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: totalPrice }),
-    })
-    const orderData = await orderRes.json()
-
-    if (!orderRes.ok) {
-      const fallback = window.confirm(
-        'Razorpay keys unconfigured on backend. Use Student Bypass Mode to place test order?'
-      )
-      if (fallback) return bypassPayment()   // loading iske andar sambhalti hai
-
-      setLoading(false)
-      return alert('Payment failed to initialize')
-    }
-
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-      amount: orderData.amount,
-      currency: orderData.currency,
-      name: 'ShopNest',
-      description: 'Test Transaction',
-      order_id: orderData.id,
-
-      handler: async function (response) {
-        try {
-          const verifyRes = await fetch(`${API_URL}/api/payment/verify`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(response),
-          })
-
-          if (!verifyRes.ok) {
-            setLoading(false)
-            return alert('Payment verification failed')
-          }
-
-          const saveOrderRes = await fetch(`${API_URL}/api/orders`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${user.token}`,
-            },
-            body: JSON.stringify({
-              items: orderItems,
-              totalAmount: totalPrice,
-              address: formData,
-              paymentId: response.razorpay_payment_id,
-            }),
-          })
-
-          if (saveOrderRes.ok) {
-            dispatch(clearCart())
-            navigate('/ordersuccess')      // response aate hi success page
-          } else {
-            setLoading(false)
-            alert('Order saving failed')
-          }
-        } catch (error) {
-          console.error('Payment verification/order error:', error)
-          setLoading(false)
-          alert('Something went wrong while processing your order')
-        }
-      },
-
-      // user popup band kar de to button wapas enable ho jaye
-      modal: { ondismiss: () => setLoading(false) },
-
-      prefill: { name: formData.fullName, email: user?.email, contact: '9999999999' },
-      theme: { color: '#f97316' },
-    }
-
-    new window.Razorpay(options).open()
-  } catch (error) {
-    console.error('Payment error:', error)
-    setLoading(false)
-    alert('Something went wrong while starting payment')
-  }
-}
-
-const bypassPayment = async () => {
+  const bypassPayment = async () => {
   try {
     const saveOrderRes = await fetch(`${API_URL}/api/orders`, {
       method: 'POST',
@@ -150,11 +67,14 @@ const bypassPayment = async () => {
       }),
     })
 
+    const data = await saveOrderRes.json()
+
     if (saveOrderRes.ok) {
       dispatch(clearCart())
       navigate('/ordersuccess')
     } else {
-      alert('Order saving failed')
+      console.error('Order save error:', data)
+      alert(data.message || 'Order saving failed')
       setLoading(false)
     }
   } catch (error) {
@@ -164,8 +84,13 @@ const bypassPayment = async () => {
   }
 }
 
+const handlePayment = () => {
+  bypassPayment()
+}
+
 const handleSubmit = (e) => {
   e.preventDefault()
+
   if (loading) return
 
   setError('')
@@ -176,7 +101,13 @@ const handleSubmit = (e) => {
     return
   }
 
-  if (!formData.fullName || !formData.street || !formData.city || !formData.postalCode || !formData.country) {
+  if (
+    !formData.fullName ||
+    !formData.street ||
+    !formData.city ||
+    !formData.postalCode ||
+    !formData.country
+  ) {
     setError('Please fill in all shipping details.')
     return
   }
@@ -356,9 +287,10 @@ const handleSubmit = (e) => {
 
               <button
                 type="submit"
-                className="mt-3 w-full rounded-xl bg-orange-500 py-3.5 font-bold text-white shadow-lg shadow-orange-500/10 transition duration-300 hover:bg-orange-600 hover:shadow-orange-500/20"
+                disabled={loading}
+                className="mt-3 w-full rounded-xl bg-orange-500 py-3.5 font-bold text-white shadow-lg shadow-orange-500/10 transition duration-300 hover:bg-orange-600 hover:shadow-orange-500/20 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Pay Now
+                {loading ? 'Placing Order...' : 'Place Order'}
               </button>
 
             </form>
