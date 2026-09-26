@@ -14,6 +14,8 @@ const formatOrderItems = (items = []) => {
 
 const createOrder = async (req, res) => {
     try {
+        console.log('ORDER: request received')
+
         const { items, totalAmount, address, paymentId } = req.body
 
         if (!items || !totalAmount || !address || !paymentId) {
@@ -22,6 +24,9 @@ const createOrder = async (req, res) => {
             })
         }
 
+        console.log('ORDER: before database create')
+        const startDb = Date.now()
+
         const order = await orderModel.create({
             user: req.user._id,
             items,
@@ -29,6 +34,8 @@ const createOrder = async (req, res) => {
             address,
             paymentId
         })
+
+        console.log(`ORDER: database create took ${Date.now() - startDb}ms`)
 
         const formattedAddress = `${address.fullName}\n${address.street}, ${address.city}\n${address.postalCode}, ${address.country}`
 
@@ -53,11 +60,14 @@ Thank you for choosing ShopNest!
 Best Regards,
 ShopNest Team`
 
-        // Email should not block order creation
+        console.log('ORDER: sending email in background')
+
         sendEmail(req.user.email, 'Order Created - ShopNest', message)
             .catch((error) => {
                 console.error('Order email failed:', error)
             })
+
+        console.log('ORDER: sending 201 response')
 
         return res.status(201).json({
             message: 'order created succesfully',
@@ -72,6 +82,8 @@ ShopNest Team`
         })
     }
 }
+
+
 const getOrderById = async (req, res) => {
     try {
         const userOrders = await orderModel.find({user: req.user._id}).populate('items.productId', 'name price')
