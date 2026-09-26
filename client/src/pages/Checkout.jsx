@@ -136,7 +136,7 @@ const Checkout = () => {
 
 const bypassPayment = async () => {
   try {
-    const saveOrderRes = await fetch(`http://localhost:5000/api/orders`, {
+    const saveOrderRes = await fetch(`${API_URL}/api/orders`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
